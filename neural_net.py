@@ -30,7 +30,16 @@ def calculate_one_layer_net_output(W, X, beta):
     Y = 1 / (1 + np.exp(-beta * U))
     return Y
 
-def calculate_one_layer_net_with_bias_output(W,X, beta):
+def calculate_one_layer_net_with_bias_output_matrix(W, aTest, beta):
+    neural_net_result = np.zeros((2,aTest.shape[1]))
+    for j in range(0,aTest.shape[1]):
+        Y2po = calculate_one_layer_net_with_bias_output(W, np.asmatrix(aTest[:,int(j)]).T, beta)
+        neural_net_result[0][j] = Y2po[0][0]
+        neural_net_result[1][j] = Y2po[1][0]
+
+    return neural_net_result
+
+def calculate_one_layer_net_with_bias_output(W, X, beta):
     X1 = np.append(X,[[1]],0)
     U = np.transpose(W) @ X1
     Y = 1 / (1 + np.exp(-beta * U))
@@ -41,7 +50,18 @@ def calculate_two_layers_net_output(W1, W2, X, beta):
     Y1 = 1 / (1 + np.exp(-beta * U1))
     U2 = np.transpose(W2) @ Y1
     Y2 = 1 / (1 + np.exp(-beta * U2))
-    return Y1, Y2
+    return Y1,Y2
+
+def calculate_two_layers_net_result_vector(W1,W2,X,beta):
+    return calculate_two_layers_net_output(W1, W2, X, beta)[1]
+
+def calculate_two_layers_net_with_bias_output_matrix(W1, W2, aTest, beta):
+    neural_net_result = np.zeros((2,aTest.shape[1]))
+    for j in range(0,aTest.shape[1]):
+        Y2po = calculate_two_layers_net_with_bias_output(W1, W2, np.asmatrix(aTest[:,int(j)]).T, beta)[1]
+        neural_net_result[0][j] = Y2po[0][0]
+        neural_net_result[1][j] = Y2po[1][0]
+    return neural_net_result
 
 def calculate_two_layers_net_with_bias_output(W1, W2, X, beta):
     X1 = np.append(X,[[1]],0)
@@ -170,12 +190,11 @@ class NeuralNet:
         if(self.net_type == ONE_LAYER):
             return calculate_one_layer_net_output(self.weight_matrixes[0],input_vector, self.beta)
         elif(self.net_type == ONE_LAYER_BIAS):
-            return calculate_one_layer_net_with_bias_output(self.weight_matrixes[0], input_vector, self.beta)
+            return calculate_one_layer_net_with_bias_output_matrix(self.weight_matrixes[0], input_vector, self.beta)
         elif(self.net_type == TWO_LAYERS):
-            return calculate_two_layers_net_output(self.weight_matrixes[0], self.weight_matrixes[1], input_vector, self.beta)
+            return calculate_two_layers_net_result_vector(self.weight_matrixes[0], self.weight_matrixes[1], input_vector, self.beta)
         elif(self.net_type == TWO_LAYERS_BIAS):
-            return calculate_two_layers_net_with_bias_output(self.weight_matrixes[0], self.weight_matrixes[1], input_vector, self.beta)
-
+            return calculate_two_layers_net_with_bias_output_matrix(self.weight_matrixes[0], self.weight_matrixes[1], input_vector, self.beta)
 
     def display_parameters(self):
         print("Number of inputs: ", self.number_of_inputs)
@@ -183,8 +202,3 @@ class NeuralNet:
         if(self.neurons_in_hidden_layer > 0):
             print("Number of neurons in hidden layer: ", self.neurons_in_hidden_layer)
         print("Bias: ", self.bias)
-
-neural_net_2 = NeuralNet(2,4)
-neural_net_1 = NeuralNet(2,3,4)
-neural_net_3 = NeuralNet(2,4,0,True)
-neural_net_3 = NeuralNet(2,4,2,True)

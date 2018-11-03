@@ -32,81 +32,24 @@ CROSSVALIDATION_PARAMETER = 3
 
 MEANING_PARAMETER = 5
 
-#atr - ilość atrubutów
-#count - ilość klas rozpoznawania
-#P - macierz atrybutów
-#T - macierz diagnoz
-#teach - epoki uczenia
-#wykonanie kodu zwiazanego z siecia
-def make_experiment_with_one_layer(atr, count, P, T, teach, beta, learning_factor):
+def make_experiment(input_matrix, output_matrix, number_of_epochs, beta, learning_factor, hidden, bias):
+    atr = input_matrix.shape[0]
+    count = output_matrix.shape[0]
+    number_of_data = input_matrix.shape[1]
+
     sr = 0
     for s in range (0, MEANING_PARAMETER):
-        neural_net = NeuralNet(atr, count)
+        neural_net = NeuralNet(atr,count, hidden, bias)
         sk = 0
         for i in range(0,CROSSVALIDATION_PARAMETER):
-            aUcz, aTest, dUcz, dTest = create_training_and_testing_data(P,T,i,int(P.shape[1]/CROSSVALIDATION_PARAMETER))
-            neural_net.learn(aUcz, dUcz, teach, beta, learning_factor)
+            aUcz, aTest, dUcz, dTest = create_training_and_testing_data(input_matrix,output_matrix, i, int(number_of_data/CROSSVALIDATION_PARAMETER))
+            neural_net.learn(aUcz, dUcz, number_of_epochs, beta, learning_factor)
             neural_net_result = neural_net.calculate(aTest)
-            sk += accuracy(dTest,neural_net_result) 
+            sk += accuracy(dTest,neural_net_result)
         sr += sk/CROSSVALIDATION_PARAMETER
         print("Network accuracy: ", sk/CROSSVALIDATION_PARAMETER)
     worksheet.write(actual_row, actual_column, sr/MEANING_PARAMETER)
     print("Mean accuracy: ", sr/MEANING_PARAMETER)
-
-def make_experiment_with_one_layer_with_bias(atr, count, P, T, teach, beta, learning_factor):
-    sr = 0
-    for s in range (0, MEANING_PARAMETER):
-        neural_net = NeuralNet(atr,count, 0, True)
-        sk = 0
-        for i in range(0,CROSSVALIDATION_PARAMETER):
-            aUcz, aTest, dUcz, dTest = create_training_and_testing_data(P,T,i,int(P.shape[1]/CROSSVALIDATION_PARAMETER))
-            neural_net.learn(aUcz, dUcz, teach, beta, learning_factor)
-            neural_net_result = np.zeros((2,aTest.shape[1]))
-            for j in range(0,aTest.shape[1]):
-                Y2po = neural_net.calculate(np.asmatrix(aTest[:,int(j)]).T)
-                neural_net_result[0][j] = Y2po[0][0]
-                neural_net_result[1][j] = Y2po[1][0]
-            sk += accuracy(dTest,np.asmatrix(neural_net_result)) 
-        sr += sk/CROSSVALIDATION_PARAMETER
-        print("Network accuracy: ", sk/CROSSVALIDATION_PARAMETER)
-
-    worksheet.write(actual_row, actual_column, sr/MEANING_PARAMETER)
-    print("Mean accuracy: ", sr/MEANING_PARAMETER)
-
-
-def make_experiment_with_two_layers(atr, count, P, T, teach, hidden, beta, learning_factor):
-    sr = 0
-    for s in range (0, MEANING_PARAMETER):
-        neural_net = NeuralNet(atr, count, hidden)
-        sk = 0
-        for i in range(0,CROSSVALIDATION_PARAMETER):
-            aUcz, aTest, dUcz, dTest = create_training_and_testing_data(P,T,i,int(P.shape[1]/CROSSVALIDATION_PARAMETER))
-            neural_net.learn(aUcz, dUcz, teach, beta, learning_factor)
-            neural_net_result = neural_net.calculate(aTest)[1]
-            sk += accuracy(dTest,neural_net_result) 
-        sr += sk/CROSSVALIDATION_PARAMETER
-        print("Network accuracy: ", sk/CROSSVALIDATION_PARAMETER)
-    worksheet.write(actual_row, actual_column, sr/MEANING_PARAMETER)
-    print("Mean accuracy: ", sr/MEANING_PARAMETER)
-
-def make_experiment_with_two_layers_with_bias(atr, count, P, T, teach, hidden, beta, learning_factor):
-    sr = 0
-    for s in range (0, MEANING_PARAMETER):
-        neural_net = NeuralNet(atr,count, hidden, True)
-        sk = 0
-        for i in range(0,CROSSVALIDATION_PARAMETER):
-            aUcz, aTest, dUcz, dTest = create_training_and_testing_data(P,T,i,int(P.shape[1]/CROSSVALIDATION_PARAMETER))
-            neural_net.learn(aUcz, dUcz, teach, beta, learning_factor)
-            neural_net_result = np.zeros((2,aTest.shape[1]))
-            for j in range(0,aTest.shape[1]):
-                Y2po = neural_net.calculate(np.asmatrix(aTest[:,int(j)]).T)[1]
-                neural_net_result[0][j] = Y2po[0][0]
-                neural_net_result[1][j] = Y2po[1][0]
-            sk += accuracy(dTest,np.asmatrix(neural_net_result)) 
-        sr += sk/CROSSVALIDATION_PARAMETER
-        print("Network accuracy: ", sk/CROSSVALIDATION_PARAMETER)
-    worksheet.write(actual_row, actual_column, sr/MEANING_PARAMETER)
-    print(sr/MEANING_PARAMETER)
 
 #T - porprawne odpowiedzi
 #Ypo - uzyskane odpowiedzi
@@ -171,7 +114,7 @@ actual_row+=1
 T_BETA = [2]
 T_LEARNING_FACTORS = [0.99]
 T_NEURONS_IN_HIDDEN_LAYER = [10]
-T_NUMBER_OF_EPOCHS = [20000]
+T_NUMBER_OF_EPOCHS = [1000]
 
 for t_epokiuczenia in T_NUMBER_OF_EPOCHS:
     for t_beta in T_BETA:
@@ -182,11 +125,11 @@ for t_epokiuczenia in T_NUMBER_OF_EPOCHS:
 
             actual_column=ONE_LAYER_RESULT_COLUMN
 
-            make_experiment_with_one_layer(atr_array.shape[0],diag_array.shape[0],atr_array,diag_array,t_epokiuczenia, t_beta, t_wspucz)
+            make_experiment(atr_array,diag_array,t_epokiuczenia, t_beta, t_wspucz, 0, False)
             #nowa_diagnoza = calculate_one_layer_net_output(Wpo,nowy_pacjent, beta)
             actual_column+=1
 
-            make_experiment_with_one_layer_with_bias(atr_array.shape[0],diag_array.shape[0],atr_array,diag_array,t_epokiuczenia, t_beta, t_wspucz)
+            make_experiment(atr_array,diag_array,t_epokiuczenia, t_beta, t_wspucz, 0, True)
             #nowa_diagnoza = calculate_one_layer_net_with_bias_output(Wpo,nowy_pacjent, beta)
             actual_column+=1
 
@@ -195,11 +138,11 @@ for t_epokiuczenia in T_NUMBER_OF_EPOCHS:
                 worksheet.write(actual_row, BETA_COLUMN, t_beta)
                 worksheet.write(actual_row, LEARNING_FACTOR_COLUMN, t_wspucz)
                 worksheet.write(actual_row, EPOCHS_COLUMN, t_epokiuczenia)
-                make_experiment_with_two_layers(atr_array.shape[0], diag_array.shape[0], atr_array,diag_array, t_epokiuczenia, t_wu, t_beta, t_wspucz)
+                make_experiment(atr_array,diag_array, t_epokiuczenia,t_beta, t_wspucz, t_wu, False)
             # a, nowa_diagnoza = calculate_two_layers_net_output(Wpo, W2po, nowy_pacjent, beta)
                 actual_column+=1
 
-                make_experiment_with_two_layers_with_bias(atr_array.shape[0],diag_array.shape[0],atr_array,diag_array,t_epokiuczenia, t_wu, t_beta, t_wspucz)
+                make_experiment(atr_array, diag_array, t_epokiuczenia, t_beta, t_wspucz, t_wu, True)
             # a, nowa_diagnoza = calculate_two_layers_net_with_bias_output(Wpo, W2po, nowy_pacjent, beta)
 
                 actual_row+=1
