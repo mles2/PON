@@ -1,14 +1,7 @@
 import numpy as np
-import csv
 import xlsxwriter
 from neural_net import *
-
-
-def readcsv(filename,dm):
-    with open(filename, 'r') as p:
-        my_list = [[int(x) for x in rec] for rec in csv.reader(p, delimiter=',')]
-    return my_list
-
+from data_loader import readcsv
 
 # Create a workbook and add a worksheet.
 workbook = xlsxwriter.Workbook('parametrySieci.xlsx')
@@ -133,9 +126,6 @@ def skutecznosc(T,Ypo):
     
     
 
-
-
-
 #macierz atrybutów, macierz diagnoz, numer iteracji, wielkosc przedziału out
 def dwaCiagi(atr_array,diag_array, iter, zakres):
     poczatekOut = int(iter*zakres)
@@ -173,15 +163,7 @@ for d in diagnoses:
 
 diag_array = np.asmatrix(diag_array).transpose()
 
-
-
-
-
 nowy_pacjent = ([[0.9],[0.5],[0.5],[0.3],[0.6],[0.7],[0.7],[0.9],[0.1]])
-
-
-
-
 
 worksheet.write(row, c1, '1 warstwa')
 worksheet.write(row, c1b, '1 warstwa +b')
@@ -193,7 +175,6 @@ worksheet.write(row, colWU, 'W Ukryta')
 worksheet.write(row, colEpoki, 'Epoki uczenia')
 row+=1
 
-
 #####################################################################################################
 # Wpływ ilosci epok uczenia 
 
@@ -202,50 +183,38 @@ T_WSPUCZ = [0.99]
 T_WARSTWAUKRYTA = [10]
 T_EPOKIUCZENIA = [20000]
 
-
 for t_epokiuczenia in T_EPOKIUCZENIA:
     for t_beta in T_BETA:
         for t_wspucz in T_WSPUCZ:
-            EPOKIUCZENIA = t_epokiuczenia
             worksheet.write(row, colBeta, t_beta)
             worksheet.write(row, colWSpUcz, t_wspucz)
-            worksheet.write(row, colEpoki, EPOKIUCZENIA)
+            worksheet.write(row, colEpoki, t_epokiuczenia)
 
             col=c1
 
-
-
-            Wpo = wykonaj(atr_array.shape[0],diag_array.shape[0],atr_array,diag_array,EPOKIUCZENIA, t_beta, t_wspucz)
+            Wpo = wykonaj(atr_array.shape[0],diag_array.shape[0],atr_array,diag_array,t_epokiuczenia, t_beta, t_wspucz)
             #nowa_diagnoza = dzialaj(Wpo,nowy_pacjent, beta)
             col+=1
 
-            Wpo = wykonajBias(atr_array.shape[0],diag_array.shape[0],atr_array,diag_array,EPOKIUCZENIA, t_beta, t_wspucz)
+            Wpo = wykonajBias(atr_array.shape[0],diag_array.shape[0],atr_array,diag_array,t_epokiuczenia, t_beta, t_wspucz)
             #nowa_diagnoza = dzialajBias(Wpo,nowy_pacjent, beta)
             col+=1
 
-            
             for t_wu in T_WARSTWAUKRYTA:
-                WARSTWAUKRYTA = t_wu
-                worksheet.write(row, colWU, WARSTWAUKRYTA)
+                worksheet.write(row, colWU, t_wu)
                 worksheet.write(row, colBeta, t_beta)
                 worksheet.write(row, colWSpUcz, t_wspucz)
-                worksheet.write(row, colEpoki, EPOKIUCZENIA)
-                Wpo, W2po = wykonaj2(atr_array.shape[0],diag_array.shape[0],atr_array,diag_array,EPOKIUCZENIA,WARSTWAUKRYTA, t_beta, t_wspucz)
+                worksheet.write(row, colEpoki, t_epokiuczenia)
+                Wpo, W2po = wykonaj2(atr_array.shape[0],diag_array.shape[0],atr_array,diag_array,t_epokiuczenia, t_wu, t_beta, t_wspucz)
             # a, nowa_diagnoza = dzialaj2(Wpo, W2po, nowy_pacjent, beta)
                 col+=1
 
-                Wpo, W2po = wykonaj2bias(atr_array.shape[0],diag_array.shape[0],atr_array,diag_array,EPOKIUCZENIA,WARSTWAUKRYTA, t_beta, t_wspucz)
+                Wpo, W2po = wykonaj2bias(atr_array.shape[0],diag_array.shape[0],atr_array,diag_array,t_epokiuczenia, t_wu, t_beta, t_wspucz)
             # a, nowa_diagnoza = dzialaj2bias(Wpo, W2po, nowy_pacjent, beta)
 
                 row+=1
                 col=c2
 
             col=c1
-
-
-
-
-
-
 
 workbook.close()
