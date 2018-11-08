@@ -6,11 +6,6 @@ ONE_LAYER_BIAS = 2
 TWO_LAYERS = 3
 TWO_LAYERS_BIAS = 4
 
-#inicjacja sieci losowymi wagami
-def init(S, K):
-    W1 = -0.1 + 0.2 * np.random.rand(S, K)
-    return W1
-
 def initBias(S,K):
     W1 = -0.1 + 0.2 * np.random.rand(S+1, K)
     return W1
@@ -24,12 +19,6 @@ def init2bias(S,K1,K2):
     W1 = -0.1 + 0.2 * np.random.rand(S+1, K1)
     W2 = -0.1 + 0.2 * np.random.rand(K1+1, K2)
     return [W1, W2]
-
-#obliczenie odpowiedzi sieci
-def calculate_one_layer_net_output(W, X, beta):
-    U = np.transpose(W) @ X
-    Y = 1 / (1 + np.exp(-beta * U))
-    return Y
 
 def calculate_one_layer_net_with_bias_output_matrix(W, aTest, beta):
     neural_net_result = np.zeros((2,aTest.shape[1]))
@@ -72,23 +61,6 @@ def calculate_two_layers_net_with_bias_output(W1, W2, X, beta):
     U2 = np.transpose(W2) @ X2
     Y2 = 1 / (1 + np.exp(-beta * U2))
     return Y1, Y2
-
-
-#proces uczenia sieci
-def learn_one_layer_network(weights_matrix, input_matrix, output_matrix, number_of_epochs, beta, learning_factor):
-    liczbaPrzykladow = input_matrix.shape[1]
-    W = weights_matrix
-    for i in range(0, number_of_epochs):
-        nrPrzykladu = np.ceil(np.random.rand() * liczbaPrzykladow-1)
-        X = np.matrix(input_matrix[:,int(nrPrzykladu)])
-        X = X.T 
-        Y = calculate_one_layer_net_output(W, X, beta)
-        D = output_matrix[:,int(nrPrzykladu)] - Y
-        E = D* beta * Y.T * (1 - Y)
-        dW = learning_factor * X * E.T
-        W = W + dW
-    Wpo = W
-    return Wpo
 
 def learn_one_layer_bias_network(weights_matrix, input_matrix, output_matrix, number_of_epochs, beta, learning_factor):
     liczbaPrzykladow = input_matrix.shape[1]
