@@ -1,4 +1,5 @@
 import numpy as np
+from neural_net.one_layer_net import OneLayerNeuralNet
 
 ONE_LAYER = 1
 ONE_LAYER_BIAS = 2
@@ -161,7 +162,7 @@ class NeuralNet:
         self.display_parameters()
 
         if((neurons_in_hidden_layer == 0) and (bias == False)):
-            self.weight_matrixes = [init(number_of_inputs, number_of_outputs)]
+            self.net = OneLayerNeuralNet(number_of_inputs, number_of_outputs)
             self.net_type = ONE_LAYER
         elif((neurons_in_hidden_layer == 0) and (bias == True)):
             self.weight_matrixes = [initBias(number_of_inputs, number_of_outputs)]
@@ -178,7 +179,7 @@ class NeuralNet:
     def learn(self, input_matrix, output_matrix, number_of_epochs, beta, learning_factor):
         self.beta = beta
         if(self.net_type == ONE_LAYER):
-            self.weight_matrixes[0] = learn_one_layer_network(self.weight_matrixes[0],input_matrix, output_matrix, number_of_epochs, beta, learning_factor)
+            self.net.learn(input_matrix, output_matrix, number_of_epochs, beta, learning_factor)
         elif(self.net_type == ONE_LAYER_BIAS):
             self.weight_matrixes[0] = learn_one_layer_bias_network(self.weight_matrixes[0], input_matrix, output_matrix, number_of_epochs, beta, learning_factor)
         elif(self.net_type == TWO_LAYERS):
@@ -188,7 +189,7 @@ class NeuralNet:
 
     def calculate(self, input_vector):
         if(self.net_type == ONE_LAYER):
-            return calculate_one_layer_net_output(self.weight_matrixes[0],input_vector, self.beta)
+            return self.net.calculate(input_vector, self.beta)
         elif(self.net_type == ONE_LAYER_BIAS):
             return calculate_one_layer_net_with_bias_output_matrix(self.weight_matrixes[0], input_vector, self.beta)
         elif(self.net_type == TWO_LAYERS):

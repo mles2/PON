@@ -1,6 +1,6 @@
 import numpy as np
 import xlsxwriter
-from neural_net import *
+from neural_net.neural_net import *
 from data_loader import load_data
 
 # Create a workbook and add a worksheet.
