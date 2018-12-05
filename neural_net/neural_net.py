@@ -1,14 +1,11 @@
 import numpy as np
 from neural_net.one_layer_net import OneLayerNeuralNet
+from neural_net.one_layer_bias_net import OneLayerBiasNeuralNet
 
 ONE_LAYER = 1
 ONE_LAYER_BIAS = 2
 TWO_LAYERS = 3
 TWO_LAYERS_BIAS = 4
-
-def initBias(S,K):
-    W1 = -0.1 + 0.2 * np.random.rand(S+1, K)
-    return W1
 
 def init2(S,K1,K2):
     W1 = -0.1 + 0.2 * np.random.rand(S, K1)
@@ -19,21 +16,6 @@ def init2bias(S,K1,K2):
     W1 = -0.1 + 0.2 * np.random.rand(S+1, K1)
     W2 = -0.1 + 0.2 * np.random.rand(K1+1, K2)
     return [W1, W2]
-
-def calculate_one_layer_net_with_bias_output_matrix(W, aTest, beta):
-    neural_net_result = np.zeros((2,aTest.shape[1]))
-    for j in range(0,aTest.shape[1]):
-        Y2po = calculate_one_layer_net_with_bias_output(W, np.asmatrix(aTest[:,int(j)]).T, beta)
-        neural_net_result[0][j] = Y2po[0][0]
-        neural_net_result[1][j] = Y2po[1][0]
-
-    return neural_net_result
-
-def calculate_one_layer_net_with_bias_output(W, X, beta):
-    X1 = np.append(X,[[1]],0)
-    U = np.transpose(W) @ X1
-    Y = 1 / (1 + np.exp(-beta * U))
-    return Y
 
 def calculate_two_layers_net_output(W1, W2, X, beta):
     U1 = np.transpose(W1) @ X
@@ -61,22 +43,6 @@ def calculate_two_layers_net_with_bias_output(W1, W2, X, beta):
     U2 = np.transpose(W2) @ X2
     Y2 = 1 / (1 + np.exp(-beta * U2))
     return Y1, Y2
-
-def learn_one_layer_bias_network(weights_matrix, input_matrix, output_matrix, number_of_epochs, beta, learning_factor):
-    liczbaPrzykladow = input_matrix.shape[1]
-    W = weights_matrix
-    for i in range(0, number_of_epochs):
-        nrPrzykladu = np.ceil(np.random.rand() * liczbaPrzykladow-1)
-        X = np.matrix(input_matrix[:,int(nrPrzykladu)])
-        X1 = np.append(X,[[1]],1)
-        X = X.T 
-        Y = calculate_one_layer_net_with_bias_output(W, X, beta)
-        D = output_matrix[:,int(nrPrzykladu)] - Y
-        E = D* beta * Y.T * (1 - Y)
-        dW = learning_factor * X1.T * E.T
-        W = W + dW
-    Wpo = W
-    return Wpo
 
 def learn_two_layers_network(first_layer_matrix, second_layer_matrix, input_matrix, output_matrix, number_of_epochs, beta, learning_factor):
     liczbaPrzykladow = input_matrix.shape[1]
@@ -137,7 +103,7 @@ class NeuralNet:
             self.net = OneLayerNeuralNet(number_of_inputs, number_of_outputs)
             self.net_type = ONE_LAYER
         elif((neurons_in_hidden_layer == 0) and (bias == True)):
-            self.weight_matrixes = [initBias(number_of_inputs, number_of_outputs)]
+            self.net = OneLayerBiasNeuralNet(number_of_inputs, number_of_outputs)
             self.net_type = ONE_LAYER_BIAS
         elif((neurons_in_hidden_layer > 0) and (bias == False)):
             self.weight_matrixes = init2(number_of_inputs, neurons_in_hidden_layer, number_of_outputs)
@@ -153,7 +119,7 @@ class NeuralNet:
         if(self.net_type == ONE_LAYER):
             self.net.learn(input_matrix, output_matrix, number_of_epochs, beta, learning_factor)
         elif(self.net_type == ONE_LAYER_BIAS):
-            self.weight_matrixes[0] = learn_one_layer_bias_network(self.weight_matrixes[0], input_matrix, output_matrix, number_of_epochs, beta, learning_factor)
+            self.net.learn(input_matrix, output_matrix, number_of_epochs, beta, learning_factor)
         elif(self.net_type == TWO_LAYERS):
             self.weight_matrixes[0], self.weight_matrixes[1] = learn_two_layers_network(self.weight_matrixes[0], self.weight_matrixes[1], input_matrix, output_matrix, number_of_epochs, beta, learning_factor)
         elif(self.net_type == TWO_LAYERS_BIAS):
@@ -163,7 +129,7 @@ class NeuralNet:
         if(self.net_type == ONE_LAYER):
             return self.net.calculate(input_vector, self.beta)
         elif(self.net_type == ONE_LAYER_BIAS):
-            return calculate_one_layer_net_with_bias_output_matrix(self.weight_matrixes[0], input_vector, self.beta)
+            return self.net.calculate(input_vector, self.beta)
         elif(self.net_type == TWO_LAYERS):
             return calculate_two_layers_net_result_vector(self.weight_matrixes[0], self.weight_matrixes[1], input_vector, self.beta)
         elif(self.net_type == TWO_LAYERS_BIAS):
