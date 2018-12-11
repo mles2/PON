@@ -57,7 +57,7 @@ class SkLearnNeuralNet:
         list_of_results = []
         for input_vector in input_vectors:
             list_of_results.append(self.net.predict(input_vector.reshape(1, -1))[0])
-        print(list_of_results)
+        #print(list_of_results)
         return np.array(list_of_results)
 
     def display_parameters(self):
