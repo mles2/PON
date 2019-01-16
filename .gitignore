@@ -3,3 +3,5 @@
 __pycache__
 pon_env/*
 *article*
+*.png
+*.txt

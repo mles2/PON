@@ -16,8 +16,8 @@ class NeuralNet:
         self.neurons_in_hidden_layer = neurons_in_hidden_layer
         self.bias = bias
 
-        print("Trying to create neural net with parameters:")
-        self.display_parameters()
+        # print("Trying to create neural net with parameters:")
+        # self.display_parameters()
 
         if((neurons_in_hidden_layer == 0) and (bias == False)):
             self.net = OneLayerNeuralNet(number_of_inputs, number_of_outputs)

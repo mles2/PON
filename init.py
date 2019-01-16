@@ -47,7 +47,7 @@ def make_experiment(input_matrix, output_matrix, number_of_epochs, beta, learnin
             neural_net_result = neural_net.calculate(aTest)
             sk += accuracy(dTest,neural_net_result)
         sr += sk/CROSSVALIDATION_PARAMETER
-        print("Network accuracy: ", sk/CROSSVALIDATION_PARAMETER)
+        #print("Network accuracy: ", sk/CROSSVALIDATION_PARAMETER)
     worksheet.write(actual_row, actual_column, sr/MEANING_PARAMETER)
     print("Mean accuracy: ", sr/MEANING_PARAMETER)
 
@@ -111,14 +111,15 @@ actual_row+=1
 #####################################################################################################
 # Wpływ ilosci epok uczenia 
 
-T_BETA = [2]
-T_LEARNING_FACTORS = [0.99]
+T_BETA = [1]
+T_LEARNING_FACTORS = [0.01, 0.02, 0.03, 0.05, 0.08, 0.1, 0.15, 0.2, 0.3, 0.5, 0.7, 0.99]
 T_NEURONS_IN_HIDDEN_LAYER = [10]
-T_NUMBER_OF_EPOCHS = [1000]
+T_NUMBER_OF_EPOCHS = [20000]
 
-for t_epokiuczenia in T_NUMBER_OF_EPOCHS:
+for t_wspucz in T_LEARNING_FACTORS:
+    print("WSPÓŁCZYNNIK UCZENIA ", t_wspucz)
     for t_beta in T_BETA:
-        for t_wspucz in T_LEARNING_FACTORS:
+        for t_epokiuczenia in T_NUMBER_OF_EPOCHS:
             worksheet.write(actual_row, BETA_COLUMN, t_beta)
             worksheet.write(actual_row, LEARNING_FACTOR_COLUMN, t_wspucz)
             worksheet.write(actual_row, EPOCHS_COLUMN, t_epokiuczenia)

@@ -30,8 +30,5 @@ def load_array_from_data(filename):
     data_array = readcsv(filename,',')
     data_array = np.array(data_array)
     inputs = data_array[:,1:-1]
-    print(inputs)
     outputs = data_array[:, -1]
-
-
     return inputs, convert_array(outputs)
